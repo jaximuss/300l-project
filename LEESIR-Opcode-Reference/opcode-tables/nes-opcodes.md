@@ -1,0 +1,157 @@
+# NES Official Opcodes
+
+This table lists all 151 official NES/6502 opcode encodings implemented by LEESIR. Unofficial/illegal 6502 opcodes are outside the implemented project scope.
+
+| Opcode | Mnemonic | Addressing Mode | Bytes | Cycles in LEESIR | What It Does | Exact / Representative C# Case Body | Implementation Status | Code Source |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 0x00 | BRK | Implied | 1 | 7 | Software interrupt; push state and load IRQ/BRK vector. | return Brk(); -> increments PC padding, pushes PC/status, sets I, loads vector $FFFE. | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x01 | ORA | (Indirect,X) | 2 | 6 | Bitwise OR into A. | Ora(Read(IndexedIndirect())); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x05 | ORA | Zero page | 2 | 3 | Bitwise OR into A. | Ora(Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x06 | ASL | Zero page | 2 | 5 | Shift left; bit 7 to carry. | Modify(ZeroPage(), Asl); return 5; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x08 | PHP | Implied | 1 | 3 | Push processor status. | Push(_r.StatusForStack(breakFlag: true)); return 3; // PHP | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x09 | ORA | Immediate | 2 | 2 | Bitwise OR into A. | Ora(FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x0A | ASL | Accumulator | 1 | 2 | Shift left; bit 7 to carry. | _r.A = Asl(_r.A); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x0D | ORA | Absolute | 3 | 4 | Bitwise OR into A. | Ora(Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x0E | ASL | Absolute | 3 | 6 | Shift left; bit 7 to carry. | Modify(Absolute(), Asl); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x10 | BPL | Relative | 2 | 2 (+1 taken, +1 page) | Branch if negative clear. | return Branch(!_r.Negative); // BPL | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x11 | ORA | (Indirect),Y | 2 | 5 (+1 page) | Bitwise OR into A. | { ushort a = IndirectIndexed(out bool p); Ora(Read(a)); return 5 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x15 | ORA | Zero page,X | 2 | 4 | Bitwise OR into A. | Ora(Read(ZeroPageX())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x16 | ASL | Zero page,X | 2 | 6 | Shift left; bit 7 to carry. | Modify(ZeroPageX(), Asl); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x18 | CLC | Implied | 1 | 2 | Clear carry. | _r.Carry = false; return 2; // CLC | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x19 | ORA | Absolute,Y | 3 | 4 (+1 page) | Bitwise OR into A. | { ushort a = AbsoluteY(out bool p); Ora(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x1D | ORA | Absolute,X | 3 | 4 (+1 page) | Bitwise OR into A. | { ushort a = AbsoluteX(out bool p); Ora(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x1E | ASL | Absolute,X | 3 | 7 | Shift left; bit 7 to carry. | Modify(AbsoluteX(out _), Asl); return 7; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x20 | JSR | Absolute | 3 | 6 | Push return address and jump to subroutine. | return Jsr(); -> FetchWord(), push PC-1, then PC = target. | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x21 | AND | (Indirect,X) | 2 | 6 | Bitwise AND into A. | And(Read(IndexedIndirect())); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x24 | BIT | Zero page | 2 | 3 | Test memory bits against A and update Z/N/V. | Bit(Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x25 | AND | Zero page | 2 | 3 | Bitwise AND into A. | And(Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x26 | ROL | Zero page | 2 | 5 | Rotate left through carry. | Modify(ZeroPage(), Rol); return 5; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x28 | PLP | Implied | 1 | 4 | Pull processor status. | _r.RestoreStatusFromStack(Pop()); return 4; // PLP | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x29 | AND | Immediate | 2 | 2 | Bitwise AND into A. | And(FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x2A | ROL | Accumulator | 1 | 2 | Rotate left through carry. | _r.A = Rol(_r.A); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x2C | BIT | Absolute | 3 | 4 | Test memory bits against A and update Z/N/V. | Bit(Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x2D | AND | Absolute | 3 | 4 | Bitwise AND into A. | And(Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x2E | ROL | Absolute | 3 | 6 | Rotate left through carry. | Modify(Absolute(), Rol); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x30 | BMI | Relative | 2 | 2 (+1 taken, +1 page) | Branch if negative set. | return Branch(_r.Negative); // BMI | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x31 | AND | (Indirect),Y | 2 | 5 (+1 page) | Bitwise AND into A. | { ushort a = IndirectIndexed(out bool p); And(Read(a)); return 5 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x35 | AND | Zero page,X | 2 | 4 | Bitwise AND into A. | And(Read(ZeroPageX())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x36 | ROL | Zero page,X | 2 | 6 | Rotate left through carry. | Modify(ZeroPageX(), Rol); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x38 | SEC | Implied | 1 | 2 | Set carry. | _r.Carry = true; return 2; // SEC | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x39 | AND | Absolute,Y | 3 | 4 (+1 page) | Bitwise AND into A. | { ushort a = AbsoluteY(out bool p); And(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x3D | AND | Absolute,X | 3 | 4 (+1 page) | Bitwise AND into A. | { ushort a = AbsoluteX(out bool p); And(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x3E | ROL | Absolute,X | 3 | 7 | Rotate left through carry. | Modify(AbsoluteX(out _), Rol); return 7; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x40 | RTI | Implied | 1 | 6 | Restore status and PC after interrupt. | return Rti(); -> restore status from stack, then PC = PopWord(). | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x41 | EOR | (Indirect,X) | 2 | 6 | Bitwise XOR into A. | Eor(Read(IndexedIndirect())); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x45 | EOR | Zero page | 2 | 3 | Bitwise XOR into A. | Eor(Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x46 | LSR | Zero page | 2 | 5 | Logical shift right; bit 0 to carry. | Modify(ZeroPage(), Lsr); return 5; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x48 | PHA | Implied | 1 | 3 | Push A. | Push(_r.A); return 3; // PHA | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x49 | EOR | Immediate | 2 | 2 | Bitwise XOR into A. | Eor(FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x4A | LSR | Accumulator | 1 | 2 | Logical shift right; bit 0 to carry. | _r.A = Lsr(_r.A); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x4C | JMP | Absolute | 3 | 3 | Set PC to target address. | PC = FetchWord(); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x4D | EOR | Absolute | 3 | 4 | Bitwise XOR into A. | Eor(Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x4E | LSR | Absolute | 3 | 6 | Logical shift right; bit 0 to carry. | Modify(Absolute(), Lsr); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x50 | BVC | Relative | 2 | 2 (+1 taken, +1 page) | Branch if overflow clear. | return Branch(!_r.Overflow); // BVC | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x51 | EOR | (Indirect),Y | 2 | 5 (+1 page) | Bitwise XOR into A. | { ushort a = IndirectIndexed(out bool p); Eor(Read(a)); return 5 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x55 | EOR | Zero page,X | 2 | 4 | Bitwise XOR into A. | Eor(Read(ZeroPageX())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x56 | LSR | Zero page,X | 2 | 6 | Logical shift right; bit 0 to carry. | Modify(ZeroPageX(), Lsr); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x58 | CLI | Implied | 1 | 2 | Clear interrupt-disable. | _r.InterruptDisable = false; return 2; // CLI | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x59 | EOR | Absolute,Y | 3 | 4 (+1 page) | Bitwise XOR into A. | { ushort a = AbsoluteY(out bool p); Eor(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x5D | EOR | Absolute,X | 3 | 4 (+1 page) | Bitwise XOR into A. | { ushort a = AbsoluteX(out bool p); Eor(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x5E | LSR | Absolute,X | 3 | 7 | Logical shift right; bit 0 to carry. | Modify(AbsoluteX(out _), Lsr); return 7; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x60 | RTS | Implied | 1 | 6 | Return from subroutine. | PC = PopWord() + 1; return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x61 | ADC | (Indirect,X) | 2 | 6 | Add operand and carry to A; update C/Z/V/N. NES arithmetic remains binary. | Adc(Read(IndexedIndirect())); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x65 | ADC | Zero page | 2 | 3 | Add operand and carry to A; update C/Z/V/N. NES arithmetic remains binary. | Adc(Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x66 | ROR | Zero page | 2 | 5 | Rotate right through carry. | Modify(ZeroPage(), Ror); return 5; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x68 | PLA | Implied | 1 | 4 | Pull A. | _r.A = Pop(); _r.SetZeroNegative(_r.A); return 4; // PLA | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x69 | ADC | Immediate | 2 | 2 | Add operand and carry to A; update C/Z/V/N. NES arithmetic remains binary. | Adc(FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x6A | ROR | Accumulator | 1 | 2 | Rotate right through carry. | _r.A = Ror(_r.A); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x6C | JMP | Indirect | 3 | 5 | Set PC to target address. | PC = ReadWordWithJmpBug(FetchWord()); return 5; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x6D | ADC | Absolute | 3 | 4 | Add operand and carry to A; update C/Z/V/N. NES arithmetic remains binary. | Adc(Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x6E | ROR | Absolute | 3 | 6 | Rotate right through carry. | Modify(Absolute(), Ror); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x70 | BVS | Relative | 2 | 2 (+1 taken, +1 page) | Branch if overflow set. | return Branch(_r.Overflow); // BVS | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x71 | ADC | (Indirect),Y | 2 | 5 (+1 page) | Add operand and carry to A; update C/Z/V/N. NES arithmetic remains binary. | { ushort a = IndirectIndexed(out bool p); Adc(Read(a)); return 5 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x75 | ADC | Zero page,X | 2 | 4 | Add operand and carry to A; update C/Z/V/N. NES arithmetic remains binary. | Adc(Read(ZeroPageX())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x76 | ROR | Zero page,X | 2 | 6 | Rotate right through carry. | Modify(ZeroPageX(), Ror); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x78 | SEI | Implied | 1 | 2 | Set interrupt-disable. | _r.InterruptDisable = true; return 2; // SEI | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x79 | ADC | Absolute,Y | 3 | 4 (+1 page) | Add operand and carry to A; update C/Z/V/N. NES arithmetic remains binary. | { ushort a = AbsoluteY(out bool p); Adc(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x7D | ADC | Absolute,X | 3 | 4 (+1 page) | Add operand and carry to A; update C/Z/V/N. NES arithmetic remains binary. | { ushort a = AbsoluteX(out bool p); Adc(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x7E | ROR | Absolute,X | 3 | 7 | Rotate right through carry. | Modify(AbsoluteX(out _), Ror); return 7; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x81 | STA | (Indirect,X) | 2 | 6 | Store A to memory. | Write(IndexedIndirect(), _r.A); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x84 | STY | Zero page | 2 | 3 | Store Y to memory. | Write(ZeroPage(), _r.Y); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x85 | STA | Zero page | 2 | 3 | Store A to memory. | Write(ZeroPage(), _r.A); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x86 | STX | Zero page | 2 | 3 | Store X to memory. | Write(ZeroPage(), _r.X); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x88 | DEY | Implied | 1 | 2 | Decrement Y. | _r.Y--; _r.SetZeroNegative(_r.Y); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x8A | TXA | Implied | 1 | 2 | Copy X to A. | _r.A = _r.X; _r.SetZeroNegative(_r.A); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x8C | STY | Absolute | 3 | 4 | Store Y to memory. | Write(Absolute(), _r.Y); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x8D | STA | Absolute | 3 | 4 | Store A to memory. | Write(Absolute(), _r.A); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x8E | STX | Absolute | 3 | 4 | Store X to memory. | Write(Absolute(), _r.X); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x90 | BCC | Relative | 2 | 2 (+1 taken, +1 page) | Branch if carry clear. | return Branch(!_r.Carry); // BCC | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x91 | STA | (Indirect),Y | 2 | 6 | Store A to memory. | Write(IndirectIndexed(out _), _r.A); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x94 | STY | Zero page,X | 2 | 4 | Store Y to memory. | Write(ZeroPageX(), _r.Y); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x95 | STA | Zero page,X | 2 | 4 | Store A to memory. | Write(ZeroPageX(), _r.A); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x96 | STX | Zero page,Y | 2 | 4 | Store X to memory. | Write(ZeroPageY(), _r.X); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x98 | TYA | Implied | 1 | 2 | Copy Y to A. | _r.A = _r.Y; _r.SetZeroNegative(_r.A); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x99 | STA | Absolute,Y | 3 | 5 | Store A to memory. | Write(AbsoluteY(out _), _r.A); return 5; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x9A | TXS | Implied | 1 | 2 | Copy X to stack pointer. | _r.SP = _r.X; return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0x9D | STA | Absolute,X | 3 | 5 | Store A to memory. | Write(AbsoluteX(out _), _r.A); return 5; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xA0 | LDY | Immediate | 2 | 2 | Load Y and update Z/N. | LoadY(FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xA1 | LDA | (Indirect,X) | 2 | 6 | Load memory/immediate value into accumulator A and update Z/N. | LoadA(Read(IndexedIndirect())); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xA2 | LDX | Immediate | 2 | 2 | Load X and update Z/N. | LoadX(FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xA4 | LDY | Zero page | 2 | 3 | Load Y and update Z/N. | LoadY(Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xA5 | LDA | Zero page | 2 | 3 | Load memory/immediate value into accumulator A and update Z/N. | LoadA(Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xA6 | LDX | Zero page | 2 | 3 | Load X and update Z/N. | LoadX(Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xA8 | TAY | Implied | 1 | 2 | Copy A to Y. | _r.Y = _r.A; _r.SetZeroNegative(_r.Y); return 2; // TAY | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xA9 | LDA | Immediate | 2 | 2 | Load memory/immediate value into accumulator A and update Z/N. | LoadA(FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xAA | TAX | Implied | 1 | 2 | Copy A to X. | _r.X = _r.A; _r.SetZeroNegative(_r.X); return 2; // TAX | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xAC | LDY | Absolute | 3 | 4 | Load Y and update Z/N. | LoadY(Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xAD | LDA | Absolute | 3 | 4 | Load memory/immediate value into accumulator A and update Z/N. | LoadA(Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xAE | LDX | Absolute | 3 | 4 | Load X and update Z/N. | LoadX(Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xB0 | BCS | Relative | 2 | 2 (+1 taken, +1 page) | Branch if carry set. | return Branch(_r.Carry); // BCS | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xB1 | LDA | (Indirect),Y | 2 | 5 (+1 page) | Load memory/immediate value into accumulator A and update Z/N. | { ushort a = IndirectIndexed(out bool p); LoadA(Read(a)); return 5 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xB4 | LDY | Zero page,X | 2 | 4 | Load Y and update Z/N. | LoadY(Read(ZeroPageX())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xB5 | LDA | Zero page,X | 2 | 4 | Load memory/immediate value into accumulator A and update Z/N. | LoadA(Read(ZeroPageX())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xB6 | LDX | Zero page,Y | 2 | 4 | Load X and update Z/N. | LoadX(Read(ZeroPageY())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xB8 | CLV | Implied | 1 | 2 | Clear overflow. | _r.Overflow = false; return 2; // CLV | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xB9 | LDA | Absolute,Y | 3 | 4 (+1 page) | Load memory/immediate value into accumulator A and update Z/N. | { ushort a = AbsoluteY(out bool p); LoadA(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xBA | TSX | Implied | 1 | 2 | Copy stack pointer to X. | _r.X = _r.SP; _r.SetZeroNegative(_r.X); return 2; // TSX | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xBC | LDY | Absolute,X | 3 | 4 (+1 page) | Load Y and update Z/N. | { ushort a = AbsoluteX(out bool p); LoadY(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xBD | LDA | Absolute,X | 3 | 4 (+1 page) | Load memory/immediate value into accumulator A and update Z/N. | { ushort a = AbsoluteX(out bool p); LoadA(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xBE | LDX | Absolute,Y | 3 | 4 (+1 page) | Load X and update Z/N. | { ushort a = AbsoluteY(out bool p); LoadX(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xC0 | CPY | Immediate | 2 | 2 | Compare Y with operand. | Compare(_r.Y, FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xC1 | CMP | (Indirect,X) | 2 | 6 | Compare A with operand without storing result. | Compare(_r.A, Read(IndexedIndirect())); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xC4 | CPY | Zero page | 2 | 3 | Compare Y with operand. | Compare(_r.Y, Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xC5 | CMP | Zero page | 2 | 3 | Compare A with operand without storing result. | Compare(_r.A, Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xC6 | DEC | Zero page | 2 | 5 | Decrement memory and update Z/N. | Modify(ZeroPage(), Dec); return 5; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xC8 | INY | Implied | 1 | 2 | Increment Y. | _r.Y++; _r.SetZeroNegative(_r.Y); return 2; // INY | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xC9 | CMP | Immediate | 2 | 2 | Compare A with operand without storing result. | Compare(_r.A, FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xCA | DEX | Implied | 1 | 2 | Decrement X. | _r.X--; _r.SetZeroNegative(_r.X); return 2; // DEX | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xCC | CPY | Absolute | 3 | 4 | Compare Y with operand. | Compare(_r.Y, Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xCD | CMP | Absolute | 3 | 4 | Compare A with operand without storing result. | Compare(_r.A, Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xCE | DEC | Absolute | 3 | 6 | Decrement memory and update Z/N. | Modify(Absolute(), Dec); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xD0 | BNE | Relative | 2 | 2 (+1 taken, +1 page) | Branch if zero clear. | return Branch(!_r.Zero); // BNE | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xD1 | CMP | (Indirect),Y | 2 | 5 (+1 page) | Compare A with operand without storing result. | { ushort a = IndirectIndexed(out bool p); Compare(_r.A, Read(a)); return 5 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xD5 | CMP | Zero page,X | 2 | 4 | Compare A with operand without storing result. | Compare(_r.A, Read(ZeroPageX())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xD6 | DEC | Zero page,X | 2 | 6 | Decrement memory and update Z/N. | Modify(ZeroPageX(), Dec); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xD8 | CLD | Implied | 1 | 2 | Clear decimal flag. | _r.Decimal = false; return 2; // CLD | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xD9 | CMP | Absolute,Y | 3 | 4 (+1 page) | Compare A with operand without storing result. | { ushort a = AbsoluteY(out bool p); Compare(_r.A, Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xDD | CMP | Absolute,X | 3 | 4 (+1 page) | Compare A with operand without storing result. | { ushort a = AbsoluteX(out bool p); Compare(_r.A, Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xDE | DEC | Absolute,X | 3 | 7 | Decrement memory and update Z/N. | Modify(AbsoluteX(out _), Dec); return 7; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xE0 | CPX | Immediate | 2 | 2 | Compare X with operand. | Compare(_r.X, FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xE1 | SBC | (Indirect,X) | 2 | 6 | Subtract operand and borrow from A; update C/Z/V/N. | Sbc(Read(IndexedIndirect())); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xE4 | CPX | Zero page | 2 | 3 | Compare X with operand. | Compare(_r.X, Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xE5 | SBC | Zero page | 2 | 3 | Subtract operand and borrow from A; update C/Z/V/N. | Sbc(Read(ZeroPage())); return 3; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xE6 | INC | Zero page | 2 | 5 | Increment memory and update Z/N. | Modify(ZeroPage(), Inc); return 5; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xE8 | INX | Implied | 1 | 2 | Increment X. | _r.X++; _r.SetZeroNegative(_r.X); return 2; // INX | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xE9 | SBC | Immediate | 2 | 2 | Subtract operand and borrow from A; update C/Z/V/N. | Sbc(FetchByte()); return 2; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xEA | NOP | Implied | 1 | 2 | No operation. | return 2; // NOP | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xEC | CPX | Absolute | 3 | 4 | Compare X with operand. | Compare(_r.X, Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xED | SBC | Absolute | 3 | 4 | Subtract operand and borrow from A; update C/Z/V/N. | Sbc(Read(Absolute())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xEE | INC | Absolute | 3 | 6 | Increment memory and update Z/N. | Modify(Absolute(), Inc); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xF0 | BEQ | Relative | 2 | 2 (+1 taken, +1 page) | Branch if zero set. | return Branch(_r.Zero); // BEQ | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xF1 | SBC | (Indirect),Y | 2 | 5 (+1 page) | Subtract operand and borrow from A; update C/Z/V/N. | { ushort a = IndirectIndexed(out bool p); Sbc(Read(a)); return 5 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xF5 | SBC | Zero page,X | 2 | 4 | Subtract operand and borrow from A; update C/Z/V/N. | Sbc(Read(ZeroPageX())); return 4; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xF6 | INC | Zero page,X | 2 | 6 | Increment memory and update Z/N. | Modify(ZeroPageX(), Inc); return 6; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xF8 | SED | Implied | 1 | 2 | Set decimal flag (2A03 still performs binary arithmetic). | _r.Decimal = true; return 2; // SED; 2A03 arithmetic still remains binary. | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xF9 | SBC | Absolute,Y | 3 | 4 (+1 page) | Subtract operand and borrow from A; update C/Z/V/N. | { ushort a = AbsoluteY(out bool p); Sbc(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xFD | SBC | Absolute,X | 3 | 4 (+1 page) | Subtract operand and borrow from A; update C/Z/V/N. | { ushort a = AbsoluteX(out bool p); Sbc(Read(a)); return 4 + B(p); } | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
+| 0xFE | INC | Absolute,X | 3 | 7 | Increment memory and update Z/N. | Modify(AbsoluteX(out _), Inc); return 7; | Supported official opcode | LEESIR.Cores.Nes/NesCpu.cs |
