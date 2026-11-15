@@ -1,0 +1,257 @@
+Opcode,Mnemonic,Addressing / Operand Form,What It Does,T-cycles in LEESIR,How the C# Interpreter Implements It,Implementation Status,Code Source
+0x00,NOP,Implied,No operation.,4,return 4;,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x01,"LD BC,n16",Immediate 16-bit,"Copy a byte/word between registers, memory or an immediate value.",12,"WriteR16(register, FetchWord());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x02,"LD [BC],A",Register indirect,Store A at the address in BC.,8,"_memory.WriteByte(_registers.BC, _registers.A);",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x03,INC BC,16-bit register,Add 1 to the selected register or memory value.,8,"WriteR16(register, Wrap16(ReadR16(register) + 1));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x04,INC B,8-bit register / [HL],Add 1 to the selected register or memory value.,4,"ReadR8 -> +1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x05,DEC B,8-bit register / [HL],Subtract 1 from the selected register or memory value.,4,"ReadR8 -> -1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x06,"LD B,n8",Immediate 8-bit,"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(register, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x07,RLCA,Accumulator rotate,Rotate A left; old bit 7 becomes carry and bit 0.,4,"_registers.A = RotateOrShift(0, _registers.A); ZeroFlag = false;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x08,"LD [n16],SP",Immediate address,Store SP as little-endian two bytes at the immediate 16-bit address.,20,FetchWord(); write low SP byte then high SP byte.,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x09,"ADD HL,BC",16-bit register,Add source to destination and update arithmetic flags.,8,AddToHl(ReadR16((opcode >> 4) & 3));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x0A,"LD A,[BC]",Register indirect,Load A from the address in BC.,8,_registers.A = _memory.ReadByte(_registers.BC);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x0B,DEC BC,16-bit register,Subtract 1 from the selected register or memory value.,8,"WriteR16(register, Wrap16(ReadR16(register) - 1));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x0C,INC C,8-bit register / [HL],Add 1 to the selected register or memory value.,4,"ReadR8 -> +1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x0D,DEC C,8-bit register / [HL],Subtract 1 from the selected register or memory value.,4,"ReadR8 -> -1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x0E,"LD C,n8",Immediate 8-bit,"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(register, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x0F,RRCA,Accumulator rotate,Rotate A right; old bit 0 becomes carry and bit 7.,4,"_registers.A = RotateOrShift(1, _registers.A); ZeroFlag = false;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x10,STOP,Stop state,Enter STOP state; LEESIR recognises but does not implement this opcode.,Recognised,if (opcode == 0x10) throw new NotSupportedException(...),Recognised but unsupported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x11,"LD DE,n16",Immediate 16-bit,"Copy a byte/word between registers, memory or an immediate value.",12,"WriteR16(register, FetchWord());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x12,"LD [DE],A",Register indirect,Store A at the address in DE.,8,"_memory.WriteByte(_registers.DE, _registers.A);",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x13,INC DE,16-bit register,Add 1 to the selected register or memory value.,8,"WriteR16(register, Wrap16(ReadR16(register) + 1));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x14,INC D,8-bit register / [HL],Add 1 to the selected register or memory value.,4,"ReadR8 -> +1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x15,DEC D,8-bit register / [HL],Subtract 1 from the selected register or memory value.,4,"ReadR8 -> -1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x16,"LD D,n8",Immediate 8-bit,"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(register, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x17,RLA,Accumulator rotate through carry,Rotate A left through carry.,4,"_registers.A = RotateOrShift(2, _registers.A); ZeroFlag = false;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x18,JR e8,Relative,Add signed 8-bit displacement to PC.,12,PC = Wrap16(PC + SignedByte(FetchByte()));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x19,"ADD HL,DE",16-bit register,Add source to destination and update arithmetic flags.,8,AddToHl(ReadR16((opcode >> 4) & 3));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x1A,"LD A,[DE]",Register indirect,Load A from the address in DE.,8,_registers.A = _memory.ReadByte(_registers.DE);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x1B,DEC DE,16-bit register,Subtract 1 from the selected register or memory value.,8,"WriteR16(register, Wrap16(ReadR16(register) - 1));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x1C,INC E,8-bit register / [HL],Add 1 to the selected register or memory value.,4,"ReadR8 -> +1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x1D,DEC E,8-bit register / [HL],Subtract 1 from the selected register or memory value.,4,"ReadR8 -> -1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x1E,"LD E,n8",Immediate 8-bit,"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(register, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x1F,RRA,Accumulator rotate through carry,Rotate A right through carry.,4,"_registers.A = RotateOrShift(3, _registers.A); ZeroFlag = false;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x20,"JR NZ,e8",Conditional relative,Conditional or unconditional relative branch.,8 / 12 taken,"Fetch signed displacement; if Condition(cc), add to PC.",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x21,"LD HL,n16",Immediate 16-bit,"Copy a byte/word between registers, memory or an immediate value.",12,"WriteR16(register, FetchWord());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x22,"LD [HL+],A",Register indirect + post-increment,"Store A at HL, then increment HL.",8,"Write memory at HL, then HL = Wrap16(HL + 1).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x23,INC HL,16-bit register,Add 1 to the selected register or memory value.,8,"WriteR16(register, Wrap16(ReadR16(register) + 1));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x24,INC H,8-bit register / [HL],Add 1 to the selected register or memory value.,4,"ReadR8 -> +1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x25,DEC H,8-bit register / [HL],Subtract 1 from the selected register or memory value.,4,"ReadR8 -> -1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x26,"LD H,n8",Immediate 8-bit,"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(register, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x27,DAA,Implied,Decimal-adjust A after BCD-style arithmetic according to flags.,4,DecimalAdjust();,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x28,"JR Z,e8",Conditional relative,Conditional or unconditional relative branch.,8 / 12 taken,"Fetch signed displacement; if Condition(cc), add to PC.",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x29,"ADD HL,HL",16-bit register,Add source to destination and update arithmetic flags.,8,AddToHl(ReadR16((opcode >> 4) & 3));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x2A,"LD A,[HL+]",Register indirect + post-increment,"Load A from HL, then increment HL.",8,"Read memory at HL into A, then HL = Wrap16(HL + 1).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x2B,DEC HL,16-bit register,Subtract 1 from the selected register or memory value.,8,"WriteR16(register, Wrap16(ReadR16(register) - 1));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x2C,INC L,8-bit register / [HL],Add 1 to the selected register or memory value.,4,"ReadR8 -> +1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x2D,DEC L,8-bit register / [HL],Subtract 1 from the selected register or memory value.,4,"ReadR8 -> -1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x2E,"LD L,n8",Immediate 8-bit,"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(register, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x2F,CPL,Implied,Bitwise-complement A; set N and H flags.,4,A = Wrap8(~A); SubtractFlag = true; HalfCarryFlag = true;,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x30,"JR NC,e8",Conditional relative,Conditional or unconditional relative branch.,8 / 12 taken,"Fetch signed displacement; if Condition(cc), add to PC.",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x31,"LD SP,n16",Immediate 16-bit,"Copy a byte/word between registers, memory or an immediate value.",12,"WriteR16(register, FetchWord());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x32,"LD [HL-],A",Register indirect + post-decrement,"Store A at HL, then decrement HL.",8,"Write memory at HL, then HL = Wrap16(HL - 1).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x33,INC SP,16-bit register,Add 1 to the selected register or memory value.,8,"WriteR16(register, Wrap16(ReadR16(register) + 1));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x34,INC [HL],8-bit register / [HL],Add 1 to the selected register or memory value.,12,"ReadR8 -> +1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x35,DEC [HL],8-bit register / [HL],Subtract 1 from the selected register or memory value.,12,"ReadR8 -> -1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x36,"LD [HL],n8",Immediate 8-bit,"Copy a byte/word between registers, memory or an immediate value.",12,"WriteR8(register, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x37,SCF,Implied,Set carry; preserve zero; clear N and H.,4,"SetFlags(ZeroFlag, false, false, true);",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x38,"JR C,e8",Conditional relative,Conditional or unconditional relative branch.,8 / 12 taken,"Fetch signed displacement; if Condition(cc), add to PC.",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x39,"ADD HL,SP",16-bit register,Add source to destination and update arithmetic flags.,8,AddToHl(ReadR16((opcode >> 4) & 3));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x3A,"LD A,[HL-]",Register indirect + post-decrement,"Load A from HL, then decrement HL.",8,"Read memory at HL into A, then HL = Wrap16(HL - 1).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x3B,DEC SP,16-bit register,Subtract 1 from the selected register or memory value.,8,"WriteR16(register, Wrap16(ReadR16(register) - 1));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x3C,INC A,8-bit register / [HL],Add 1 to the selected register or memory value.,4,"ReadR8 -> +1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x3D,DEC A,8-bit register / [HL],Subtract 1 from the selected register or memory value.,4,"ReadR8 -> -1 -> WriteR8; SetFlags(Z,N,H,C).",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x3E,"LD A,n8",Immediate 8-bit,"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(register, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x3F,CCF,Implied,Complement carry; preserve zero; clear N and H.,4,"SetFlags(ZeroFlag, false, false, !CarryFlag);",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x40,"LD B,B",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x41,"LD B,C",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x42,"LD B,D",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x43,"LD B,E",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x44,"LD B,H",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x45,"LD B,L",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x46,"LD B,[HL]",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x47,"LD B,A",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x48,"LD C,B",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x49,"LD C,C",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x4A,"LD C,D",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x4B,"LD C,E",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x4C,"LD C,H",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x4D,"LD C,L",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x4E,"LD C,[HL]",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x4F,"LD C,A",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x50,"LD D,B",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x51,"LD D,C",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x52,"LD D,D",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x53,"LD D,E",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x54,"LD D,H",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x55,"LD D,L",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x56,"LD D,[HL]",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x57,"LD D,A",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x58,"LD E,B",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x59,"LD E,C",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x5A,"LD E,D",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x5B,"LD E,E",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x5C,"LD E,H",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x5D,"LD E,L",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x5E,"LD E,[HL]",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x5F,"LD E,A",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x60,"LD H,B",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x61,"LD H,C",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x62,"LD H,D",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x63,"LD H,E",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x64,"LD H,H",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x65,"LD H,L",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x66,"LD H,[HL]",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x67,"LD H,A",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x68,"LD L,B",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x69,"LD L,C",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x6A,"LD L,D",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x6B,"LD L,E",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x6C,"LD L,H",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x6D,"LD L,L",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x6E,"LD L,[HL]",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x6F,"LD L,A",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x70,"LD [HL],B",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x71,"LD [HL],C",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x72,"LD [HL],D",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x73,"LD [HL],E",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x74,"LD [HL],H",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x75,"LD [HL],L",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x76,HALT,Implied,Stop normal instruction execution until an interrupt condition occurs.,4,Sets _halted or _haltBug depending on IME/pending interrupts.,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x77,"LD [HL],A",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x78,"LD A,B",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x79,"LD A,C",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x7A,"LD A,D",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x7B,"LD A,E",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x7C,"LD A,H",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x7D,"LD A,L",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x7E,"LD A,[HL]",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",8,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x7F,"LD A,A",Register / [HL],"Copy a byte/word between registers, memory or an immediate value.",4,"WriteR8(destination, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x80,"ADD A,B",Register / [HL],Add source to destination and update arithmetic flags.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x81,"ADD A,C",Register / [HL],Add source to destination and update arithmetic flags.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x82,"ADD A,D",Register / [HL],Add source to destination and update arithmetic flags.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x83,"ADD A,E",Register / [HL],Add source to destination and update arithmetic flags.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x84,"ADD A,H",Register / [HL],Add source to destination and update arithmetic flags.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x85,"ADD A,L",Register / [HL],Add source to destination and update arithmetic flags.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x86,"ADD A,[HL]",Register / [HL],Add source to destination and update arithmetic flags.,8,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x87,"ADD A,A",Register / [HL],Add source to destination and update arithmetic flags.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x88,"ADC A,B",Register / [HL],Add source plus carry to A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x89,"ADC A,C",Register / [HL],Add source plus carry to A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x8A,"ADC A,D",Register / [HL],Add source plus carry to A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x8B,"ADC A,E",Register / [HL],Add source plus carry to A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x8C,"ADC A,H",Register / [HL],Add source plus carry to A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x8D,"ADC A,L",Register / [HL],Add source plus carry to A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x8E,"ADC A,[HL]",Register / [HL],Add source plus carry to A.,8,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x8F,"ADC A,A",Register / [HL],Add source plus carry to A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x90,"SUB A,B",Register / [HL],Subtract source from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x91,"SUB A,C",Register / [HL],Subtract source from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x92,"SUB A,D",Register / [HL],Subtract source from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x93,"SUB A,E",Register / [HL],Subtract source from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x94,"SUB A,H",Register / [HL],Subtract source from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x95,"SUB A,L",Register / [HL],Subtract source from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x96,"SUB A,[HL]",Register / [HL],Subtract source from A.,8,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x97,"SUB A,A",Register / [HL],Subtract source from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x98,"SBC A,B",Register / [HL],Subtract source plus borrow/carry from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x99,"SBC A,C",Register / [HL],Subtract source plus borrow/carry from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x9A,"SBC A,D",Register / [HL],Subtract source plus borrow/carry from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x9B,"SBC A,E",Register / [HL],Subtract source plus borrow/carry from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x9C,"SBC A,H",Register / [HL],Subtract source plus borrow/carry from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x9D,"SBC A,L",Register / [HL],Subtract source plus borrow/carry from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x9E,"SBC A,[HL]",Register / [HL],Subtract source plus borrow/carry from A.,8,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0x9F,"SBC A,A",Register / [HL],Subtract source plus borrow/carry from A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA0,"AND A,B",Register / [HL],Bitwise AND with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA1,"AND A,C",Register / [HL],Bitwise AND with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA2,"AND A,D",Register / [HL],Bitwise AND with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA3,"AND A,E",Register / [HL],Bitwise AND with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA4,"AND A,H",Register / [HL],Bitwise AND with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA5,"AND A,L",Register / [HL],Bitwise AND with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA6,"AND A,[HL]",Register / [HL],Bitwise AND with A.,8,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA7,"AND A,A",Register / [HL],Bitwise AND with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA8,"XOR A,B",Register / [HL],Bitwise exclusive-OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xA9,"XOR A,C",Register / [HL],Bitwise exclusive-OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xAA,"XOR A,D",Register / [HL],Bitwise exclusive-OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xAB,"XOR A,E",Register / [HL],Bitwise exclusive-OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xAC,"XOR A,H",Register / [HL],Bitwise exclusive-OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xAD,"XOR A,L",Register / [HL],Bitwise exclusive-OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xAE,"XOR A,[HL]",Register / [HL],Bitwise exclusive-OR with A.,8,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xAF,"XOR A,A",Register / [HL],Bitwise exclusive-OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB0,"OR A,B",Register / [HL],Bitwise OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB1,"OR A,C",Register / [HL],Bitwise OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB2,"OR A,D",Register / [HL],Bitwise OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB3,"OR A,E",Register / [HL],Bitwise OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB4,"OR A,H",Register / [HL],Bitwise OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB5,"OR A,L",Register / [HL],Bitwise OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB6,"OR A,[HL]",Register / [HL],Bitwise OR with A.,8,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB7,"OR A,A",Register / [HL],Bitwise OR with A.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB8,"CP A,B",Register / [HL],Compare by subtracting without storing the result.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xB9,"CP A,C",Register / [HL],Compare by subtracting without storing the result.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xBA,"CP A,D",Register / [HL],Compare by subtracting without storing the result.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xBB,"CP A,E",Register / [HL],Compare by subtracting without storing the result.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xBC,"CP A,H",Register / [HL],Compare by subtracting without storing the result.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xBD,"CP A,L",Register / [HL],Compare by subtracting without storing the result.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xBE,"CP A,[HL]",Register / [HL],Compare by subtracting without storing the result.,8,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xBF,"CP A,A",Register / [HL],Compare by subtracting without storing the result.,4,"ExecuteAlu((opcode >> 3) & 7, ReadR8(source));",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC0,RET NZ,Conditional stack return,Return by popping PC from stack.,8 / 20 taken,"if Condition(cc), PC = PopWord();",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC1,POP BC,Stack,Pop a 16-bit value from stack into a register pair.,12,"WriteStackPair(pair, PopWord());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC2,"JP NZ,n16",Conditional absolute,Conditional or unconditional jump.,12 / 16 taken,"target = FetchWord(); if Condition(cc), PC = target;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC3,JP n16,Absolute,Jump to immediate 16-bit address.,16,PC = FetchWord();,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC4,"CALL NZ,n16",Conditional call,Push return address and jump to subroutine.,12 / 24 taken,"target = FetchWord(); if Condition(cc), PushWord(PC); PC = target;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC5,PUSH BC,Stack,Push a 16-bit register pair onto the stack.,16,PushWord(ReadStackPair(pair));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC6,"ADD A,n8",Immediate 8-bit,Add source to destination and update arithmetic flags.,8,"ExecuteAlu((opcode >> 3) & 7, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC7,RST 0x00,Fixed vector,Call a fixed low-memory restart vector.,16,PushWord(PC); PC = (ushort)(opcode & 0x38);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC8,RET Z,Conditional stack return,Return by popping PC from stack.,8 / 20 taken,"if Condition(cc), PC = PopWord();",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xC9,RET,Stack return,Pop return address from stack into PC.,16,PC = PopWord();,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xCA,"JP Z,n16",Conditional absolute,Conditional or unconditional jump.,12 / 16 taken,"target = FetchWord(); if Condition(cc), PC = target;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xCB,PREFIX CB,Prefix,Fetch the second byte and execute a CB-prefixed bit/rotate instruction.,4 + CB operation,return ExecuteCb(FetchByte());,Dispatches to 256 CB opcodes,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xCC,"CALL Z,n16",Conditional call,Push return address and jump to subroutine.,12 / 24 taken,"target = FetchWord(); if Condition(cc), PushWord(PC); PC = target;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xCD,CALL n16,Absolute call,Push next PC then jump to immediate 16-bit target.,24,target = FetchWord(); PushWord(PC); PC = target;,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xCE,"ADC A,n8",Immediate 8-bit,Add source plus carry to A.,8,"ExecuteAlu((opcode >> 3) & 7, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xCF,RST 0x08,Fixed vector,Call a fixed low-memory restart vector.,16,PushWord(PC); PC = (ushort)(opcode & 0x38);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD0,RET NC,Conditional stack return,Return by popping PC from stack.,8 / 20 taken,"if Condition(cc), PC = PopWord();",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD1,POP DE,Stack,Pop a 16-bit value from stack into a register pair.,12,"WriteStackPair(pair, PopWord());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD2,"JP NC,n16",Conditional absolute,Conditional or unconditional jump.,12 / 16 taken,"target = FetchWord(); if Condition(cc), PC = target;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD3,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD4,"CALL NC,n16",Conditional call,Push return address and jump to subroutine.,12 / 24 taken,"target = FetchWord(); if Condition(cc), PushWord(PC); PC = target;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD5,PUSH DE,Stack,Push a 16-bit register pair onto the stack.,16,PushWord(ReadStackPair(pair));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD6,"SUB A,n8",Immediate 8-bit,Subtract source from A.,8,"ExecuteAlu((opcode >> 3) & 7, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD7,RST 0x10,Fixed vector,Call a fixed low-memory restart vector.,16,PushWord(PC); PC = (ushort)(opcode & 0x38);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD8,RET C,Conditional stack return,Return by popping PC from stack.,8 / 20 taken,"if Condition(cc), PC = PopWord();",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xD9,RETI,Stack return / interrupt,Return from interrupt and re-enable IME.,16,PC = PopWord(); IME = true;,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xDA,"JP C,n16",Conditional absolute,Conditional or unconditional jump.,12 / 16 taken,"target = FetchWord(); if Condition(cc), PC = target;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xDB,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xDC,"CALL C,n16",Conditional call,Push return address and jump to subroutine.,12 / 24 taken,"target = FetchWord(); if Condition(cc), PushWord(PC); PC = target;",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xDD,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xDE,"SBC A,n8",Immediate 8-bit,Subtract source plus borrow/carry from A.,8,"ExecuteAlu((opcode >> 3) & 7, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xDF,RST 0x18,Fixed vector,Call a fixed low-memory restart vector.,16,PushWord(PC); PC = (ushort)(opcode & 0x38);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE0,"LDH [n8],A",High-memory immediate,Store A at $FF00 + immediate 8-bit offset.,12,"_memory.WriteByte((ushort)(0xFF00 + FetchByte()), A);",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE1,POP HL,Stack,Pop a 16-bit value from stack into a register pair.,12,"WriteStackPair(pair, PopWord());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE2,"LDH [C],A",High-memory C indirect,Store A at $FF00 + C.,8,"_memory.WriteByte((ushort)(0xFF00 + C), A);",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE3,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE4,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE5,PUSH HL,Stack,Push a 16-bit register pair onto the stack.,16,PushWord(ReadStackPair(pair));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE6,"AND A,n8",Immediate 8-bit,Bitwise AND with A.,8,"ExecuteAlu((opcode >> 3) & 7, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE7,RST 0x20,Fixed vector,Call a fixed low-memory restart vector.,16,PushWord(PC); PC = (ushort)(opcode & 0x38);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE8,"ADD SP,e8",Signed immediate,Add signed 8-bit displacement to SP using SM83 flag rules.,16,SP = AddSignedToSp(FetchByte());,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xE9,JP HL,Register indirect,Jump to the address already in HL.,4,PC = HL;,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xEA,"LD [n16],A",Immediate address,Store A at immediate 16-bit address.,16,"_memory.WriteByte(FetchWord(), A);",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xEB,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xEC,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xED,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xEE,"XOR A,n8",Immediate 8-bit,Bitwise exclusive-OR with A.,8,"ExecuteAlu((opcode >> 3) & 7, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xEF,RST 0x28,Fixed vector,Call a fixed low-memory restart vector.,16,PushWord(PC); PC = (ushort)(opcode & 0x38);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF0,"LDH A,[n8]",High-memory immediate,Load A from $FF00 + immediate 8-bit offset.,12,A = _memory.ReadByte((ushort)(0xFF00 + FetchByte()));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF1,POP AF,Stack,Pop a 16-bit value from stack into a register pair.,12,"WriteStackPair(pair, PopWord());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF2,"LDH A,[C]",High-memory C indirect,Load A from $FF00 + C.,8,A = _memory.ReadByte((ushort)(0xFF00 + C));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF3,DI,Interrupt control,Disable maskable Game Boy interrupts immediately.,4,_interruptMasterEnable = false; _enableImeDelay = 0;,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF4,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF5,PUSH AF,Stack,Push a 16-bit register pair onto the stack.,16,PushWord(ReadStackPair(pair));,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF6,"OR A,n8",Immediate 8-bit,Bitwise OR with A.,8,"ExecuteAlu((opcode >> 3) & 7, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF7,RST 0x30,Fixed vector,Call a fixed low-memory restart vector.,16,PushWord(PC); PC = (ushort)(opcode & 0x38);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF8,"LD HL,SP+e8",Signed immediate,Compute SP plus signed displacement and store in HL using SM83 flag rules.,12,HL = AddSignedToSp(FetchByte());,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xF9,"LD SP,HL",Register,Copy HL into SP.,8,SP = HL;,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xFA,"LD A,[n16]",Immediate address,Load A from immediate 16-bit address.,16,A = _memory.ReadByte(FetchWord());,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xFB,EI,Interrupt control,Schedule IME to become enabled after the following instruction.,4,_enableImeDelay = 2;,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xFC,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xFD,INVALID,Invalid/unused,Invalid SM83 opcode; LEESIR diagnoses and stops instead of emulating hardware lock-up.,-,default -> throw new NotSupportedException(...),Not implemented by design,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xFE,"CP A,n8",Immediate 8-bit,Compare by subtracting without storing the result.,8,"ExecuteAlu((opcode >> 3) & 7, FetchByte());",Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
+0xFF,RST 0x38,Fixed vector,Call a fixed low-memory restart vector.,16,PushWord(PC); PC = (ushort)(opcode & 0x38);,Supported,LEESIR.Cores.Gameboy/GameBoyCpu.cs
